@@ -1,12 +1,15 @@
 package dk.easv;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.*;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -31,6 +34,7 @@ public class ImageViewerWindowController {
     private ImageView imageView;
 
     private boolean isSliding = false;
+    ScheduledExecutorService executor;
 
     @FXML
     private void handleBtnLoadAction() {
@@ -73,26 +77,22 @@ public class ImageViewerWindowController {
     }
 
     public void handleBtnStart(ActionEvent actionEvent)  {
-
         if (!isSliding){
-            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+            executor = Executors.newScheduledThreadPool(1);
             Runnable slideshow = this::handleBtnNextAction;
             int delay = Integer.parseInt(txtInput.getText());
-            Future<?> future = executor.scheduleAtFixedRate(slideshow, delay, delay, TimeUnit.SECONDS);
-            future.cancel(true);
+            executor.scheduleAtFixedRate(slideshow, delay, delay, TimeUnit.SECONDS);
             isSliding = true;
-            startStopBtn.setText("Stop");
-
+            System.out.println("start");
         }
-        if (!executor.isShutdown() && isSliding) {
-            executor.shutdown();
-            isSliding = false;
-            startStopBtn.setText("Start");
-        }
-
-
-
     }
 
+    public void handleBtnStop(ActionEvent actionEvent) {
+        if (isSliding){
+            executor.shutdown();
+            System.out.println("stop");
+            isSliding =false;
+        }
+    }
 
 }

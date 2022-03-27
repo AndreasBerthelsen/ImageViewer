@@ -25,8 +25,9 @@
                             </opaqueInsets>
                         </Button>
                         <Button id="btnNext" fx:id="btnNext" mnemonicParsing="false" onAction="#handleBtnNextAction" text="Next" />
-                  <Button fx:id="startStopBtn" mnemonicParsing="false" onAction="#handleBtnStart" text="Start" />
+                  <Button mnemonicParsing="false" onAction="#handleBtnStart" text="Start" />
                   <TextField fx:id="txtInput" prefHeight="26.0" promptText="Input for time" />
+                  <Button mnemonicParsing="false" onAction="#handleBtnStop" text="Stop" />
                     </buttons>
                 </ButtonBar>
             </children>
