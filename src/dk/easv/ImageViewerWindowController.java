@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.*;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,20 +23,21 @@ import javafx.stage.Stage;
 
 public class ImageViewerWindowController {
     private final List<Image> images = new ArrayList<>();
-    @FXML
-    private Button startStopBtn;
+    private int currentImageIndex = 0;
     @FXML
     private TextField txtInput;
-    private int currentImageIndex = 0;
+
 
     @FXML
     Parent root;
 
     @FXML
     private ImageView imageView;
+    public Label imageFileLabel;
+
 
     private boolean isSliding = false;
-    ScheduledExecutorService executor;
+    ExecutorService executor;
 
     @FXML
     private void handleBtnLoadAction() {
@@ -75,17 +78,25 @@ public class ImageViewerWindowController {
             imageView.setImage(images.get(currentImageIndex));
         }
     }
-
     public void handleBtnStart(ActionEvent actionEvent)  {
         if (!isSliding){
-            executor = Executors.newScheduledThreadPool(1);
-            Runnable slideshow = this::handleBtnNextAction;
+            executor = Executors.newCachedThreadPool();
+
             int delay = Integer.parseInt(txtInput.getText());
-            executor.scheduleAtFixedRate(slideshow, delay, delay, TimeUnit.SECONDS);
+            Slideshow slideshow = new Slideshow(images);
+
+            slideshow.valueProperty().addListener((observable, oldValue, newValue) -> {
+                imageView.setImage(slideshow.getValue());
+            });
+
+            //imageFileLabel.textProperty().bind(slideshow.messageProperty());
+            //Runnable slideshow = this::handleBtnNextAction;
+
             isSliding = true;
             System.out.println("start");
         }
     }
+
 
     public void handleBtnStop(ActionEvent actionEvent) {
         if (isSliding){
