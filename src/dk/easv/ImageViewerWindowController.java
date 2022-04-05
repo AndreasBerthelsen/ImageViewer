@@ -21,7 +21,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
-public class ImageViewerWindowController {
+public class ImageViewerWindowController implements Initializable {
     private final List<Image> images = new ArrayList<>();
     private int currentImageIndex = 0;
     @FXML
@@ -35,9 +35,18 @@ public class ImageViewerWindowController {
     private ImageView imageView;
     public Label imageFileLabel;
 
-
     private boolean isSliding = false;
-    ExecutorService executor;
+    ScheduledExecutorService executor;
+    Slideshow slideshow;
+
+    public ImageViewerWindowController() {
+        slideshow = new Slideshow();
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        imageFileLabel.textProperty().bind(slideshow.messageProperty());
+    }
 
     @FXML
     private void handleBtnLoadAction() {
@@ -66,31 +75,30 @@ public class ImageViewerWindowController {
     }
 
     @FXML
-    private void handleBtnNextAction() {
+    private void handleBtnNextAction() throws Exception {
+        nextImage();
+        slideshow.call();
+    }
+
+    private void nextImage(){
         if (!images.isEmpty()) {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
+            System.out.println("next img");
         }
     }
-
     private void displayImage() {
         if (!images.isEmpty()) {
             imageView.setImage(images.get(currentImageIndex));
         }
     }
-    public void handleBtnStart(ActionEvent actionEvent)  {
-        if (!isSliding){
-            executor = Executors.newCachedThreadPool();
+
+    public void handleBtnStart(ActionEvent actionEvent) throws Exception {
+        if (!isSliding) {
+            executor = Executors.newScheduledThreadPool(1);
 
             int delay = Integer.parseInt(txtInput.getText());
-            Slideshow slideshow = new Slideshow(images);
-
-            slideshow.valueProperty().addListener((observable, oldValue, newValue) -> {
-                imageView.setImage(slideshow.getValue());
-            });
-
-            //imageFileLabel.textProperty().bind(slideshow.messageProperty());
-            //Runnable slideshow = this::handleBtnNextAction;
+            executor.scheduleAtFixedRate(slideshow,delay,delay,TimeUnit.SECONDS);
 
             isSliding = true;
             System.out.println("start");
@@ -99,11 +107,23 @@ public class ImageViewerWindowController {
 
 
     public void handleBtnStop(ActionEvent actionEvent) {
-        if (isSliding){
+        if (isSliding) {
             executor.shutdown();
             System.out.println("stop");
-            isSliding =false;
+            isSliding = false;
         }
     }
 
+
+    public class Slideshow extends Task<String> {
+
+        @Override
+        protected String call() throws Exception {
+            System.out.println("call");
+            nextImage();
+            File file = new File(images.get(currentImageIndex).getUrl());
+            updateMessage(file.getName());
+            return null;
+        }
+    }
 }
