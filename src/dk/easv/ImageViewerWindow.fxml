@@ -16,17 +16,6 @@
             <children>
                 <ButtonBar prefHeight="58.0" prefWidth="806.0">
                     <buttons>
-                        <Button id="btnLoad" fx:id="btnLoad" mnemonicParsing="false" onAction="#handleBtnLoadAction" prefHeight="27.0" prefWidth="141.0" text="Load images...">
-                            <opaqueInsets>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </opaqueInsets>
-                        </Button>
-                        <Button id="btnPrevious" fx:id="btnPrevious" mnemonicParsing="false" onAction="#handleBtnPreviousAction" text="Previous">
-                            <opaqueInsets>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </opaqueInsets>
-                        </Button>
-                        <Button id="btnNext" fx:id="btnNext" mnemonicParsing="false" onAction="#handleBtnNextAction" text="Next" />
                   <Button mnemonicParsing="false" onAction="#handleBtnStart" text="Start" />
                   <TextField fx:id="txtInput" prefHeight="26.0" promptText="Input for time" />
                   <Button mnemonicParsing="false" onAction="#handleBtnStop" text="Stop" />

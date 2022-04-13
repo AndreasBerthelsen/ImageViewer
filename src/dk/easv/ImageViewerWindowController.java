@@ -22,11 +22,9 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ImageViewerWindowController implements Initializable {
-    private final List<Image> images = new ArrayList<>();
-    private int currentImageIndex = 0;
+
     @FXML
     private TextField txtInput;
-
 
     @FXML
     Parent root;
@@ -37,19 +35,21 @@ public class ImageViewerWindowController implements Initializable {
 
     private boolean isSliding = false;
     ScheduledExecutorService executor;
-    Slideshow slideshow;
+    Slideshow activeSlideshow;
+    Scheduler scheduler;
 
     public ImageViewerWindowController() {
-        slideshow = new Slideshow();
+            scheduler = new Scheduler();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        imageFileLabel.textProperty().bind(slideshow.messageProperty());
+
     }
 
     @FXML
-    private void handleBtnLoadAction() {
+    private List<Image> loadImages() {
+        List<Image> images = new ArrayList<>();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Images",
@@ -61,50 +61,20 @@ public class ImageViewerWindowController implements Initializable {
             {
                 images.add(new Image(f.toURI().toString()));
             });
-            displayImage();
         }
+        System.out.println(images);
+        return images;
     }
 
-    @FXML
-    private void handleBtnPreviousAction() {
-        if (!images.isEmpty()) {
-            currentImageIndex =
-                    (currentImageIndex - 1 + images.size()) % images.size();
-            displayImage();
-        }
-    }
-
-    @FXML
-    private void handleBtnNextAction() throws Exception {
-        nextImage();
-        slideshow.call();
-    }
-
-    private void nextImage(){
-        if (!images.isEmpty()) {
-            currentImageIndex = (currentImageIndex + 1) % images.size();
-            displayImage();
-            System.out.println("next img");
-        }
-    }
-    private void displayImage() {
-        if (!images.isEmpty()) {
-            imageView.setImage(images.get(currentImageIndex));
-        }
-    }
 
     public void handleBtnStart(ActionEvent actionEvent) throws Exception {
-        if (!isSliding) {
-            executor = Executors.newScheduledThreadPool(1);
+        int delay = Integer.parseInt(txtInput.getText());
+        Slideshow slideshow = new Slideshow(loadImages(),imageFileLabel,imageView,delay);
+        imageFileLabel.textProperty().bind(slideshow.messageProperty());
+        scheduler.addSlideshow(slideshow);
+        scheduler.run();
 
-            int delay = Integer.parseInt(txtInput.getText());
-            executor.scheduleAtFixedRate(slideshow,delay,delay,TimeUnit.SECONDS);
-
-            isSliding = true;
-            System.out.println("start");
-        }
     }
-
 
     public void handleBtnStop(ActionEvent actionEvent) {
         if (isSliding) {
@@ -115,15 +85,4 @@ public class ImageViewerWindowController implements Initializable {
     }
 
 
-    public class Slideshow extends Task<String> {
-
-        @Override
-        protected String call() throws Exception {
-            System.out.println("call");
-            nextImage();
-            File file = new File(images.get(currentImageIndex).getUrl());
-            updateMessage(file.getName());
-            return null;
-        }
-    }
 }
