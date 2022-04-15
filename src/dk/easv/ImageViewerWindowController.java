@@ -31,8 +31,7 @@ public class ImageViewerWindowController implements Initializable {
     private ImageView imageView;
     public Label imageFileLabel;
 
-    private boolean isSliding = false;
-    ScheduledExecutorService executor;
+    ExecutorService executor;
     Scheduler scheduler;
     int slideshowLifespan = 10000;
 
@@ -42,9 +41,7 @@ public class ImageViewerWindowController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        scheduler = new Scheduler();
-        executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleWithFixedDelay(scheduler,0,slideshowLifespan, TimeUnit.MILLISECONDS);
+
     }
 
     @FXML
@@ -69,12 +66,29 @@ public class ImageViewerWindowController implements Initializable {
 
     public void handleBtnStart(ActionEvent actionEvent) throws Exception {
         int delay = Integer.parseInt(txtInput.getText()) * 1000; //*1000 for mills
+        List<Image> images = loadImages();
 
-        Slideshow slideshow = new Slideshow(loadImages(), imageFileLabel, imageView, delay);
-        scheduler.addSlideshow(slideshow);
+        if (delay > 0 && !images.isEmpty()) {
+            if (scheduler == null) {
+                scheduler = new Scheduler();
+            }
+
+            Slideshow slideshow = new Slideshow(images, imageFileLabel, imageView, delay, slideshowLifespan);
+            scheduler.addSlideshow(slideshow);
+
+            if (executor == null) {
+                executor = Executors.newSingleThreadExecutor();
+                executor.submit(scheduler);
+            }
+        }
     }
 
     public void handleBtnStop(ActionEvent actionEvent) {
+        //removes the current slideshow from the cycle
+        if (scheduler != null) {
+            scheduler.removeActiveSlideshow();
+        }
+
 
     }
 

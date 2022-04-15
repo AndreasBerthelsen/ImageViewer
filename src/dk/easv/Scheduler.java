@@ -11,37 +11,48 @@ import java.util.concurrent.*;
 public class Scheduler implements Runnable {
 
 
-
     ExecutorService executor;
     BlockingQueue<Slideshow> blockingQueue = new LinkedBlockingQueue<>();
     Slideshow activeSlideshow;
-    boolean removeActiveSlideshow = false;
+    boolean deleteSlideshow = false;
 
     public Scheduler() {
-
         executor = Executors.newSingleThreadExecutor();
-
     }
 
     public void addSlideshow(Slideshow slideshow) {
         blockingQueue.add(slideshow);
     }
 
+    public void removeActiveSlideshow() {
+        if (activeSlideshow != null){
+            activeSlideshow.Stop();
+            deleteSlideshow = true;
+        }
+    }
+
+
+
     @Override
     public void run() {
         System.out.println("scheduler run");
-        if (activeSlideshow != null) {
-            addSlideshow(new Slideshow(activeSlideshow));
-            activeSlideshow.Stop();
-        }
+        while (!blockingQueue.isEmpty()) {
+            try {
+                activeSlideshow = blockingQueue.take();
+                Future<?> future = activeSlideshow.Start();
+                future.get(); //while loop will stall here untill slideshow has hit its lifespan
 
-        try {
-            activeSlideshow = blockingQueue.take();
-            activeSlideshow.Start();
-            System.out.println("take");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                System.out.println("take");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
+            if (activeSlideshow != null && !deleteSlideshow) {
+                addSlideshow(new Slideshow(activeSlideshow));
+                activeSlideshow.Stop();
+            }else deleteSlideshow = false;
+
+
+        }
     }
 }

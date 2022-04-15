@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class Slideshow extends Task<Void> {
@@ -19,23 +20,30 @@ public class Slideshow extends Task<Void> {
     private final int delay;
     private boolean exit = false;
     private final Label label;
+    private final int lifeSpanInMills;
 
-    public Slideshow(List<Image> images, Label label, ImageView imageView, int delay) {
+    public Slideshow(List<Image> images, Label label, ImageView imageView, int delay, int lifeSpanInMills) {
         this.images = images;
         this.imageView = imageView;
         this.delay = delay;
         this.label = label;
+        this.lifeSpanInMills = lifeSpanInMills;
     }
 
-    public Slideshow(Slideshow slideshow){
+    public Slideshow(Slideshow slideshow) {
         this.images = slideshow.getImages();
         this.imageView = slideshow.getImageView();
         this.delay = slideshow.getDelay();
         this.label = slideshow.getLabel();
+        this.lifeSpanInMills = slideshow.getLifeSpanInMills();
     }
 
     public Label getLabel() {
         return label;
+    }
+
+    public int getLifeSpanInMills() {
+        return lifeSpanInMills;
     }
 
     public List<Image> getImages() {
@@ -63,19 +71,28 @@ public class Slideshow extends Task<Void> {
         }
     }
 
-    public void Start(){
+    public Future<?> Start() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(this);
+        return executorService.submit(this);
     }
 
-    public void Stop(){
+    public void Stop() {
         exit = true;
+    }
+
+    private boolean checkLifeSpan(long startTime, int lifeSpanInMills) {
+        long currentTimeMillis = System.currentTimeMillis();
+        System.out.println("ST: " + startTime);
+        System.out.println("CT: " + currentTimeMillis);
+        System.out.println("Diff: " + (currentTimeMillis - startTime));
+        return currentTimeMillis - startTime <= lifeSpanInMills;
     }
 
     @Override
     protected Void call() throws Exception {
         Platform.runLater(() -> label.textProperty().bind(this.messageProperty()));
-        while (!exit) {
+        long startTime = System.currentTimeMillis();
+        while (!exit && checkLifeSpan(startTime, lifeSpanInMills)) {
             nextImage();
             String[] arr = images.get(currentImageIndex).getUrl().split("/");
             int length = arr.length;
