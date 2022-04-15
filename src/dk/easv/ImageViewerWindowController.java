@@ -2,9 +2,7 @@ package dk.easv;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.*;
 
 import javafx.concurrent.Task;
@@ -35,16 +33,18 @@ public class ImageViewerWindowController implements Initializable {
 
     private boolean isSliding = false;
     ScheduledExecutorService executor;
-    Slideshow activeSlideshow;
     Scheduler scheduler;
+    int slideshowLifespan = 10000;
 
     public ImageViewerWindowController() {
-            scheduler = new Scheduler();
+
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        scheduler = new Scheduler();
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleWithFixedDelay(scheduler,0,slideshowLifespan, TimeUnit.MILLISECONDS);
     }
 
     @FXML
@@ -68,20 +68,14 @@ public class ImageViewerWindowController implements Initializable {
 
 
     public void handleBtnStart(ActionEvent actionEvent) throws Exception {
-        int delay = Integer.parseInt(txtInput.getText());
-        Slideshow slideshow = new Slideshow(loadImages(),imageFileLabel,imageView,delay);
-        imageFileLabel.textProperty().bind(slideshow.messageProperty());
-        scheduler.addSlideshow(slideshow);
-        scheduler.run();
+        int delay = Integer.parseInt(txtInput.getText()) * 1000; //*1000 for mills
 
+        Slideshow slideshow = new Slideshow(loadImages(), imageFileLabel, imageView, delay);
+        scheduler.addSlideshow(slideshow);
     }
 
     public void handleBtnStop(ActionEvent actionEvent) {
-        if (isSliding) {
-            executor.shutdown();
-            System.out.println("stop");
-            isSliding = false;
-        }
+
     }
 
 
