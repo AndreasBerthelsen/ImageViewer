@@ -1,11 +1,5 @@
 package dk.easv;
 
-import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-
-import java.util.List;
 import java.util.concurrent.*;
 
 public class Scheduler implements Runnable {
@@ -35,14 +29,11 @@ public class Scheduler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("scheduler run");
         while (!blockingQueue.isEmpty()) {
             try {
                 activeSlideshow = blockingQueue.take();
                 Future<?> future = activeSlideshow.Start();
                 future.get(); //while loop will stall here untill slideshow has hit its lifespan
-
-                System.out.println("take");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -51,7 +42,6 @@ public class Scheduler implements Runnable {
                 addSlideshow(new Slideshow(activeSlideshow));
                 activeSlideshow.Stop();
             }else deleteSlideshow = false;
-
 
         }
     }

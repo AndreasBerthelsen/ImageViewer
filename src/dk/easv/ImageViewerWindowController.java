@@ -1,16 +1,9 @@
 package dk.easv;
 
-import java.io.File;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.*;
-
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -19,21 +12,26 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class ImageViewerWindowController implements Initializable {
 
-    @FXML
-    private TextField txtInput;
-
+    public Label imageFileLabel;
     @FXML
     Parent root;
-
-    @FXML
-    private ImageView imageView;
-    public Label imageFileLabel;
-
     ExecutorService executor;
     Scheduler scheduler;
     int slideshowLifespan = 10000;
+    @FXML
+    private TextField txtInput;
+    @FXML
+    private ImageView imageView;
 
     public ImageViewerWindowController() {
 
@@ -88,9 +86,6 @@ public class ImageViewerWindowController implements Initializable {
         if (scheduler != null) {
             scheduler.removeActiveSlideshow();
         }
-
-
     }
-
 
 }

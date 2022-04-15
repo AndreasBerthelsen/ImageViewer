@@ -6,7 +6,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,15 +81,12 @@ public class Slideshow extends Task<Void> {
 
     private boolean checkLifeSpan(long startTime, int lifeSpanInMills) {
         long currentTimeMillis = System.currentTimeMillis();
-        System.out.println("ST: " + startTime);
-        System.out.println("CT: " + currentTimeMillis);
-        System.out.println("Diff: " + (currentTimeMillis - startTime));
         return currentTimeMillis - startTime <= lifeSpanInMills;
     }
 
     @Override
     protected Void call() throws Exception {
-        Platform.runLater(() -> label.textProperty().bind(this.messageProperty()));
+        Platform.runLater(() -> label.textProperty().bind(messageProperty()));
         long startTime = System.currentTimeMillis();
         while (!exit && checkLifeSpan(startTime, lifeSpanInMills)) {
             nextImage();
