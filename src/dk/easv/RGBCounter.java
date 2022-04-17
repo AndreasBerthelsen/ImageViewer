@@ -70,12 +70,11 @@ public class RGBCounter extends Task<Void> {
                 }
             }
         }
-
         return new int[]{redCount,greenCount,blueCount};
     }
 
     @Override
-    protected Void call() throws Exception {
+    protected Void call() {
         PixelReader pixelReader = image.getPixelReader();
         int[] imageColorCount = {0,0,0};
         for (int x = 0; x < image.getWidth(); x++) {
@@ -91,7 +90,6 @@ public class RGBCounter extends Task<Void> {
                 colorMap.put("blue",blue);
 
                 int[] pixelColor = findPixelValue(colorMap);
-                System.out.println(Arrays.toString(pixelColor));
                 imageColorCount = add(imageColorCount,pixelColor);
             }
         }
