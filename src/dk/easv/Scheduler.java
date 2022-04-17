@@ -9,6 +9,7 @@ public class Scheduler implements Runnable {
     BlockingQueue<Slideshow> blockingQueue = new LinkedBlockingQueue<>();
     Slideshow activeSlideshow;
     boolean deleteSlideshow = false;
+    boolean exit = false;
 
     public Scheduler() {
         executor = Executors.newSingleThreadExecutor();
@@ -19,17 +20,15 @@ public class Scheduler implements Runnable {
     }
 
     public void removeActiveSlideshow() {
-        if (activeSlideshow != null){
+        if (activeSlideshow != null) {
             activeSlideshow.Stop();
             deleteSlideshow = true;
         }
     }
 
-
-
     @Override
     public void run() {
-        while (!blockingQueue.isEmpty()) {
+        while (!exit) {
             try {
                 activeSlideshow = blockingQueue.take();
                 Future<?> future = activeSlideshow.Start();
@@ -37,12 +36,10 @@ public class Scheduler implements Runnable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             if (activeSlideshow != null && !deleteSlideshow) {
                 addSlideshow(new Slideshow(activeSlideshow));
                 activeSlideshow.Stop();
-            }else deleteSlideshow = false;
-
+            } else deleteSlideshow = false;
         }
     }
 }

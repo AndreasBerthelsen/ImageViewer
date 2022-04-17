@@ -23,6 +23,9 @@ import java.util.concurrent.Executors;
 public class ImageViewerWindowController implements Initializable {
 
     public Label imageFileLabel;
+    public Label redLabel;
+    public Label greenLabel;
+    public Label blueLabel;
     @FXML
     Parent root;
     ExecutorService executor;
@@ -33,8 +36,9 @@ public class ImageViewerWindowController implements Initializable {
     @FXML
     private ImageView imageView;
 
-    public ImageViewerWindowController() {
 
+    public ImageViewerWindowController() {
+        scheduler = new Scheduler();
     }
 
     @Override
@@ -53,9 +57,7 @@ public class ImageViewerWindowController implements Initializable {
 
         if (!files.isEmpty()) {
             files.forEach((File f) ->
-            {
-                images.add(new Image(f.toURI().toString()));
-            });
+                    images.add(new Image(f.toURI().toString())));
         }
         System.out.println(images);
         return images;
@@ -67,11 +69,8 @@ public class ImageViewerWindowController implements Initializable {
         List<Image> images = loadImages();
 
         if (delay > 0 && !images.isEmpty()) {
-            if (scheduler == null) {
-                scheduler = new Scheduler();
-            }
 
-            Slideshow slideshow = new Slideshow(images, imageFileLabel, imageView, delay, slideshowLifespan);
+            Slideshow slideshow = new Slideshow(images, imageFileLabel, imageView, delay, slideshowLifespan, blueLabel, redLabel, greenLabel);
             scheduler.addSlideshow(slideshow);
 
             if (executor == null) {

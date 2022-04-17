@@ -15,18 +15,25 @@ import java.util.concurrent.Future;
 public class Slideshow extends Task<Void> {
     private final List<Image> images;
     private final ImageView imageView;
-    private int currentImageIndex = 0;
     private final int delay;
-    private boolean exit = false;
     private final Label label;
     private final int lifeSpanInMills;
+    private int currentImageIndex = 0;
+    private boolean exit = false;
+    private ExecutorService executorService;
+    private Label blueLabel;
+    private Label redLabel;
+    private Label greenLabel;
 
-    public Slideshow(List<Image> images, Label label, ImageView imageView, int delay, int lifeSpanInMills) {
+    public Slideshow(List<Image> images, Label label, ImageView imageView, int delay, int lifeSpanInMills, Label blueLabel, Label redLabel, Label greenLabel) {
         this.images = images;
         this.imageView = imageView;
         this.delay = delay;
         this.label = label;
         this.lifeSpanInMills = lifeSpanInMills;
+        this.blueLabel = blueLabel;
+        this.redLabel = redLabel;
+        this.greenLabel = greenLabel;
     }
 
     public Slideshow(Slideshow slideshow) {
@@ -35,6 +42,21 @@ public class Slideshow extends Task<Void> {
         this.delay = slideshow.getDelay();
         this.label = slideshow.getLabel();
         this.lifeSpanInMills = slideshow.getLifeSpanInMills();
+        this.blueLabel = slideshow.getBlueLabel();
+        this.redLabel = slideshow.getRedLabel();
+        this.greenLabel = slideshow.getGreenLabel();
+    }
+
+    public Label getBlueLabel() {
+        return blueLabel;
+    }
+
+    public Label getRedLabel() {
+        return redLabel;
+    }
+
+    public Label getGreenLabel() {
+        return greenLabel;
     }
 
     public Label getLabel() {
@@ -71,7 +93,9 @@ public class Slideshow extends Task<Void> {
     }
 
     public Future<?> Start() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService = Executors.newCachedThreadPool();
+        //rgb counter runable
+
         return executorService.submit(this);
     }
 
@@ -84,12 +108,18 @@ public class Slideshow extends Task<Void> {
         return currentTimeMillis - startTime <= lifeSpanInMills;
     }
 
+    private void setColorLabels() {
+        RGBCounter rgbCounter = new RGBCounter(images.get(currentImageIndex), redLabel, greenLabel, blueLabel);
+        executorService.submit(rgbCounter);
+    }
+
     @Override
     protected Void call() throws Exception {
         Platform.runLater(() -> label.textProperty().bind(messageProperty()));
         long startTime = System.currentTimeMillis();
         while (!exit && checkLifeSpan(startTime, lifeSpanInMills)) {
             nextImage();
+            setColorLabels();
             String[] arr = images.get(currentImageIndex).getUrl().split("/");
             int length = arr.length;
             String imgURL = arr[length - 1];
@@ -98,6 +128,4 @@ public class Slideshow extends Task<Void> {
         }
         return null;
     }
-
-
 }
