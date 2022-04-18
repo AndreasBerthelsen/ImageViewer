@@ -4,16 +4,11 @@ import java.util.concurrent.*;
 
 public class Scheduler implements Runnable {
 
-
-    ExecutorService executor;
     BlockingQueue<Slideshow> blockingQueue = new LinkedBlockingQueue<>();
     Slideshow activeSlideshow;
     boolean deleteSlideshow = false;
     boolean exit = false;
 
-    public Scheduler() {
-        executor = Executors.newSingleThreadExecutor();
-    }
 
     public void addSlideshow(Slideshow slideshow) {
         blockingQueue.add(slideshow);
@@ -29,7 +24,6 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (!exit) {
-            System.out.println("shed run");
             try {
                 activeSlideshow = blockingQueue.take();
                 Future<?> future = activeSlideshow.Start();
