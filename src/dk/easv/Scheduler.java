@@ -31,6 +31,7 @@ public class Scheduler implements Runnable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             if (activeSlideshow != null && !deleteSlideshow) {
                 addSlideshow(new Slideshow(activeSlideshow));
                 activeSlideshow.Stop();

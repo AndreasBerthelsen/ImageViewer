@@ -6,11 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
-import javafx.util.Pair;
 
-import java.awt.*;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -27,7 +23,6 @@ public class RGBCounter extends Task<Void> {
         this.blueLabel = blueLabel;
     }
 
-
     /**
      * Adds numbers of two arrays. if arrays are of Different length than only
      * addition only occur for as many elements in the small array.
@@ -43,7 +38,6 @@ public class RGBCounter extends Task<Void> {
         for (int i = 0; i < length; i++) {
             result[i] = first[i] + second[i];
         }
-
         return result;
     }
 

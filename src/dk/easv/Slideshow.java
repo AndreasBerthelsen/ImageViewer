@@ -94,7 +94,6 @@ public class Slideshow extends Task<Void> {
 
     public Future<?> Start() {
         executorService = Executors.newCachedThreadPool();
-        //rgb counter runable
 
         return executorService.submit(this);
     }
