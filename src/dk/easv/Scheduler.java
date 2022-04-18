@@ -29,10 +29,11 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (!exit) {
+            System.out.println("shed run");
             try {
                 activeSlideshow = blockingQueue.take();
                 Future<?> future = activeSlideshow.Start();
-                future.get(); //while loop will stall here untill slideshow has hit its lifespan
+                future.get(); //while loop will stall here until slideshow has hit its lifespan
             } catch (Exception e) {
                 e.printStackTrace();
             }

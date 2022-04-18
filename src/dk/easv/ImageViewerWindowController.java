@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ImageViewerWindowController implements Initializable {
+public class ImageViewerWindowController {
 
     public Label imageFileLabel;
     public Label redLabel;
@@ -28,7 +28,6 @@ public class ImageViewerWindowController implements Initializable {
     public Label blueLabel;
     @FXML
     Parent root;
-    ExecutorService executor;
     Scheduler scheduler;
     int slideshowLifespan = 10000;
     @FXML
@@ -39,11 +38,8 @@ public class ImageViewerWindowController implements Initializable {
 
     public ImageViewerWindowController() {
         scheduler = new Scheduler();
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(scheduler);
     }
 
     @FXML
@@ -69,14 +65,8 @@ public class ImageViewerWindowController implements Initializable {
         List<Image> images = loadImages();
 
         if (delay > 0 && !images.isEmpty()) {
-
             Slideshow slideshow = new Slideshow(images, imageFileLabel, imageView, delay, slideshowLifespan, blueLabel, redLabel, greenLabel);
             scheduler.addSlideshow(slideshow);
-
-            if (executor == null) {
-                executor = Executors.newSingleThreadExecutor();
-                executor.submit(scheduler);
-            }
         }
     }
 
